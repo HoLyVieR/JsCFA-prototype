@@ -5,8 +5,8 @@ import PrefixOp.PrefixOp
 
 import scala.collection.JavaConverters._
 
-import sun.org.mozilla.javascript.internal.ast._
-import sun.org.mozilla.javascript.internal.{Token, Parser, CompilerEnvirons}
+import org.mozilla.javascript.ast._
+import org.mozilla.javascript.{Token, Parser, CompilerEnvirons}
 
 import scala.collection.mutable.ListBuffer
 
@@ -346,7 +346,7 @@ object GenerateAST {
       case Token.INC  => {
         val theNode = node.asInstanceOf[UnaryExpression]
         val operand = convert_lvalue(theNode.getOperand)
-        if(theNode.isPrefix) {
+        if(theNode.isPrefix()) {
           ret = UnaryAssignExpr(UnaryAssignOp.PrefixInc, operand)
         } else {
           ret = UnaryAssignExpr(UnaryAssignOp.PostfixInc, operand)
@@ -355,7 +355,7 @@ object GenerateAST {
       case Token.DEC => {
         val theNode = node.asInstanceOf[UnaryExpression]
         val operand = convert_lvalue(theNode.getOperand)
-        if(theNode.isPrefix) {
+        if(theNode.isPrefix()) {
           ret = UnaryAssignExpr(UnaryAssignOp.PostfixDec, operand)
         } else {
           ret = UnaryAssignExpr(UnaryAssignOp.PostfixDec, operand)
