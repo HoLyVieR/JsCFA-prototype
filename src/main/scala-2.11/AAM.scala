@@ -58,53 +58,43 @@ object AAM {
   val initMemory = setBuiltIn()
 
   val disk: Disk = scala.collection.mutable.Map.empty[JSReference, AbstractValue]
+  var callEdges = List.empty[List[String]]
 
   def analyze(program: Statement): Disk = {
     val initState = inject(program)
     var todo = List(initState)
     val seen = scala.collection.mutable.Set.empty[State]
     seen.add(initState)
-
-    //val nodeSet = collection.mutable.Set.empty[String]
-    //val edgeSet = collection.mutable.Set.empty[String]
-
-
     var i = 0
 
     while (todo.nonEmpty) {
       val currentState = todo.head
       todo = todo.tail
-
-      //println("\nState : " + i)
       i += 1
-      //println(currentState + "\n")
-      /*
-      println("\nStack :")
-      for ((p,f) <- currentState.memory.stack) {
-        println(p + " -> ")
-        println("    " + f)
-      }
-      */
-      //val node = currentState.hashCode() + "[label = \"\", style = filled, fillcolor = gray];\n"
-      //nodeSet += node
       val nextStates = transitEvaluation(currentState)
-      //for (next <- nextStates) {
-        //val edge = currentState.hashCode() + " -> " + next.hashCode() + ";\n"
-        //edgeSet += edge
-      //}
+
       for (next <- nextStates) {
         if (!seen.contains(next)) {
           seen.add(next)
+
+          if (currentState.e.isInstanceOf[KFuncCallComplete]) {
+            val to = next.e
+            val from = DecorateAST.mapToAST(currentState.e.id)
+            val toAstNode = GenerateAST.mapToAST(to)
+            val fromAstNode = GenerateAST.mapToAST(from)
+            val toFunctionNode = toAstNode
+            val fromFunctionNode = fromAstNode.getEnclosingFunction match {
+              case null => fromAstNode.getAstRoot()
+              case _ => fromAstNode
+            }
+
+            callEdges = List(fromFunctionNode.getLineno + ":" + fromFunctionNode.getPosition, toFunctionNode.getLineno + ":" + toFunctionNode.getPosition) :: callEdges
+          }
           todo = next :: todo
-        } //else {
-          //println("\n\nSEEN: " + next)
-        //}
+        }
       }
     }
-    //val graph = "digraph BST {\n" + nodeSet.mkString + edgeSet.mkString + "}"
-    //val writer = new FileWriter(new File("graph.gv"))
-    //writer.write(graph)
-    //writer.close()
+    
     println("TOTAL : " + i)
     disk
   }

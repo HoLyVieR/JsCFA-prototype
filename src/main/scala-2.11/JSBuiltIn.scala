@@ -168,7 +168,6 @@ object JSBuiltIn {
     initMemory.store(biFunctionProtoRef) = Set(biFunctionPrototype)
     val biFunction = initMemory.createEmptyObjectP(biFunctionProtoRef, biFunctionRef)
     biFunction.content += (JSString(ConstantString("prototype")) -> biFunctionProtoRef)
-
     initMemory.store(biFunctionRef) = Set(biFunction)
     biFunction.builtIn = biFunctionRef
     biFunction.code = JSClosure(FunctionExpr(None, Nil, EmptyStmt()), Map())

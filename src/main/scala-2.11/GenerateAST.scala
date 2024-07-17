@@ -14,6 +14,7 @@ import scala.collection.mutable.ListBuffer
   * Created by Fei Peng on 2/15/16.
   */
 object GenerateAST {
+  val mapToAST = collection.mutable.Map[Object, AstNode]()
   def apply(jsFile : File) = generateAST(jsFile)
   def generateAST(jsFile : File) : Statement = convert_statement(parseJavaScript(jsFile))
 
@@ -238,6 +239,7 @@ object GenerateAST {
       }
       case _ => throw new RuntimeException("Unknown Statement Type: " + Token.typeToName(node.getType) + "\n")
     }
+    mapToAST += ret -> node
     ret
   }
 
@@ -390,6 +392,7 @@ object GenerateAST {
       }
       case _ => throw new RuntimeException("Unknown Expression Type: " + Token.typeToName(node.getType) + "\n")
     }
+    mapToAST += ret -> node
     ret
   }
 
